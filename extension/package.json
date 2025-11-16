@@ -1,0 +1,21 @@
+{
+  "name": "forumyzer-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension version of Forumyzer",
+  "scripts": {
+    "dev": "vite --config vite.extension.config.ts",
+    "build": "vite build --config vite.extension.config.ts"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.198",
+    "@types/react": "^18.0.29",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^4.0.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9"
+  }
+}
