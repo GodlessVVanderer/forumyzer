@@ -23,12 +23,12 @@ app.get('/health', (req, res) => {
 
 // Forumise a video: fetch comments, classify and return threads/stats
 app.post('/api/forumize', async (req, res) => {
-  const { videoId } = req.body;
+  const { videoId, platform } = req.body;
   if (!videoId) {
     return res.status(400).json({ error: 'videoId is required' });
   }
   try {
-    const result = await forumizeService(videoId);
+    const result = await forumizeService(videoId, 50, platform);
     res.json(result);
   } catch (err) {
     console.error(err);

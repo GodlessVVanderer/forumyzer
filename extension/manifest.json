@@ -28,6 +28,7 @@
   "host_permissions": [
     "https://www.googleapis.com/*",
     "https://*.youtube.com/*",
+    "https://*.tiktok.com/*",
     "http://localhost:3000/*",
     "https://YOUR_BACKEND_URL/*"
   ],
@@ -38,6 +39,11 @@
     {
       "matches": ["*://*.youtube.com/*"],
       "js": ["contentScript.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://*.tiktok.com/*"],
+      "js": ["contentScriptTikTok.js"],
       "run_at": "document_idle"
     }
   ]

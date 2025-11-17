@@ -56,9 +56,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           break;
         }
         case 'forumizeVideo': {
-          const { videoId, videoTitle, videoChannel } = request;
+          const { videoId, videoTitle, videoChannel, platform } = request;
           // Step 1: call backend to forumize comments
-          const forumData = await callBackend('POST', '/api/forumize', { videoId });
+          const forumData = await callBackend('POST', '/api/forumize', {
+            videoId,
+            platform: platform || 'youtube' // default to youtube for backwards compatibility
+          });
           // Step 2: persist forum to backend
           const saveRes = await callBackend('POST', '/api/forum/save', {
             videoId,
@@ -73,6 +76,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               videoId,
               videoTitle,
               videoChannel,
+              platform: forumData.platform || platform || 'youtube',
               threads: forumData.threads,
               stats: forumData.stats
             }
