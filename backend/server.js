@@ -7,6 +7,7 @@ const MessageBoardModel = require('./models/messageBoard');
 const forumizeService = require('./services/forumize');
 const { generateAudioSummary } = require('./services/audio');
 const { checkIfLive, processLiveChat } = require('./services/liveStreamService');
+const { detectBot, recordPost, isBotUser } = require('./services/botDetection');
 
 dotenv.config();
 
@@ -195,12 +196,42 @@ app.get('/api/forum/share/:token', (req, res) => {
   res.json(forum);
 });
 
-// Add a reply to a thread
+// Add a reply to a thread - with bot detection
 app.post('/api/forum/:id/reply', (req, res) => {
-  const { threadId, author, text, category } = req.body;
+  const { threadId, author, text, category, userId } = req.body;
   if (!threadId || !text) {
     return res.status(400).json({ error: 'threadId and text are required' });
   }
+
+  // Check if user is flagged as bot - can only reply in Hell
+  if (isBotUser(userId)) {
+    const reply = {
+      id: require('uuid').v4(),
+      author: author || 'Anonymous',
+      text,
+      category: 'hell',
+      inHell: true,
+      replies: []
+    };
+    const updatedForum = ForumModel.addReply(req.params.id, threadId, reply);
+    if (!updatedForum) {
+      return res.status(404).json({ error: 'Forum not found' });
+    }
+    return res.json({ 
+      ...updatedForum, 
+      botWarning: 'Your account has been flagged as a bot. You can only reply in Hell.' 
+    });
+  }
+
+  // Record the post for bot detection
+  if (userId) {
+    recordPost(userId, threadId);
+    const botCheck = detectBot(userId);
+    if (botCheck.shouldSendToHell) {
+      console.log(`⚠️ Bot detected: ${userId} - ${botCheck.postCountIn30s} posts in 30s - SENT TO HELL`);
+    }
+  }
+
   const reply = {
     id: require('uuid').v4(),
     author: author || 'Anonymous',
