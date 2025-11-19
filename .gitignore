@@ -25,3 +25,7 @@ db.json
 .idea/
 *.swp
 *.swo
+
+# Accidentally committed local paths (prevent future mistakes)
+Users/
+Documents/
