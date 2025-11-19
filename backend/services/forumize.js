@@ -21,7 +21,18 @@ async function forumize(videoId, maxResults = 50) {
     maxResults,
     key: apiKey
   };
-  const response = await axios.get(url, { params });
+
+  let response;
+  try {
+    response = await axios.get(url, { params });
+  } catch (error) {
+    console.error('❌ YouTube API Error:', {
+      message: error.response?.data?.error?.message || error.message,
+      status: error.response?.status,
+      details: error.response?.data
+    });
+    throw new Error(error.response?.data?.error?.message || 'YouTube API request failed');
+  }
   const threads = response.data.items.map(item => {
     const top = item.snippet.topLevelComment.snippet;
     const comment = {
