@@ -1,17 +1,18 @@
 const { v4: uuidv4 } = require('uuid');
-const db = require('../db');
+const db = require('../db-async');
 
 /**
  * User model. A simple record of signed‑in users. Replace with
  * proper OAuth & database integration in production.
+ * All methods are async to use non-blocking file I/O.
  */
 class UserModel {
   /**
    * Create or find a user by Google ID.
    * @param {Object} profile Contains googleId, email, name, picture.
    */
-  static findOrCreate(profile) {
-    const data = db.load();
+  static async findOrCreate(profile) {
+    const data = await db.load();
     let user = data.users.find(u => u.googleId === profile.googleId);
     if (!user) {
       user = {
@@ -24,7 +25,7 @@ class UserModel {
         subscriptionTier: 'free'
       };
       data.users.push(user);
-      db.save(data);
+      await db.save(data);
     }
     return user;
   }
@@ -32,20 +33,20 @@ class UserModel {
   /**
    * Find user by ID.
    */
-  static findById(id) {
-    const data = db.load();
+  static async findById(id) {
+    const data = await db.load();
     return data.users.find(u => u.id === id);
   }
 
   /**
    * Update user subscription tier.
    */
-  static updateSubscription(id, tier) {
-    const data = db.load();
+  static async updateSubscription(id, tier) {
+    const data = await db.load();
     const user = data.users.find(u => u.id === id);
     if (user) {
       user.subscriptionTier = tier;
-      db.save(data);
+      await db.save(data);
     }
     return user;
   }

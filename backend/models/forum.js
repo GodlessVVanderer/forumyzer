@@ -1,8 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
-const db = require('../db');
+const db = require('../db-async');
 
 /**
  * Forum model provides operations to save and retrieve forums from the JSON DB.
+ * All methods are async to use non-blocking file I/O.
  */
 class ForumModel {
   /**
@@ -11,8 +12,8 @@ class ForumModel {
    * @param {String} userId Owner of the forum (optional).
    * @returns {Object} The newly created forum record.
    */
-  static create(forumData, userId = null) {
-    const data = db.load();
+  static async create(forumData, userId = null) {
+    const data = await db.load();
     const forum = {
       id: uuidv4(),
       videoId: forumData.videoId,
@@ -26,7 +27,7 @@ class ForumModel {
       shareToken: null
     };
     data.forums.push(forum);
-    db.save(data);
+    await db.save(data);
     return forum;
   }
 
@@ -35,8 +36,8 @@ class ForumModel {
    * @param {String} userId Owner ID.
    * @returns {Array} Array of forums.
    */
-  static findByUser(userId) {
-    const data = db.load();
+  static async findByUser(userId) {
+    const data = await db.load();
     return data.forums.filter(f => f.userId === userId);
   }
 
@@ -44,8 +45,8 @@ class ForumModel {
    * Find a single forum by ID.
    * @param {String} id Forum ID.
    */
-  static findById(id) {
-    const data = db.load();
+  static async findById(id) {
+    const data = await db.load();
     return data.forums.find(f => f.id === id);
   }
 
@@ -53,14 +54,14 @@ class ForumModel {
    * Generate a share token for a forum and mark it public.
    * @param {String} id Forum ID.
    */
-  static generateShareToken(id) {
-    const data = db.load();
+  static async generateShareToken(id) {
+    const data = await db.load();
     const forum = data.forums.find(f => f.id === id);
     if (!forum) return null;
     forum.shareToken = uuidv4().replace(/-/g, '').slice(0, 12);
     forum.isPublic = true;
     forum.updatedAt = new Date().toISOString();
-    db.save(data);
+    await db.save(data);
     return forum.shareToken;
   }
 
@@ -68,8 +69,8 @@ class ForumModel {
    * Find a forum by share token.
    * @param {String} token Share token.
    */
-  static findByShareToken(token) {
-    const data = db.load();
+  static async findByShareToken(token) {
+    const data = await db.load();
     return data.forums.find(f => f.shareToken === token);
   }
 
@@ -79,8 +80,8 @@ class ForumModel {
    * @param {String} threadId Thread ID.
    * @param {Object} reply Reply object { id, author, text, category, replies }
    */
-  static addReply(forumId, threadId, reply) {
-    const data = db.load();
+  static async addReply(forumId, threadId, reply) {
+    const data = await db.load();
     const forum = data.forums.find(f => f.id === forumId);
     if (!forum) return null;
     // Recursively search for thread and push reply
@@ -99,7 +100,7 @@ class ForumModel {
     };
     pushReply(forum.forumData.threads);
     forum.updatedAt = new Date().toISOString();
-    db.save(data);
+    await db.save(data);
     return forum;
   }
 }
