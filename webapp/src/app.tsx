@@ -6,23 +6,23 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { sanitizeText, extractVideoId, sanitizeErrorMessage, RateLimiter } from './utils/security';
 import './styles.css';
 
-// Create rate limiter instance
+// Create rate limiter instance for client-side throttling
 const rateLimiter = new RateLimiter();
 
-interface Comment {
+interface ForumyzedComment {
   id: string;
   author: string;
   text: string;
   category: string;
-  replies?: Comment[];
+  replies?: ForumyzedComment[];
   upvotes?: number;
   downvotes?: number;
 }
 
 function WebApp() {
-  const [tab, setTab] = useState<'forumize' | 'library' | 'settings'>('forumize');
+  const [tab, setTab] = useState<'forumyze' | 'library' | 'settings'>('forumyze');
   const [videoUrl, setVideoUrl] = useState('');
-  const [currentForum, setCurrentForum] = useState<any>(null);
+  const [currentForumyzed, setCurrentForumyzed] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showBlinds, setShowBlinds] = useState(false);
@@ -31,10 +31,13 @@ function WebApp() {
   const [loadingAudio, setLoadingAudio] = useState(false);
   const [forumId, setForumId] = useState<string | null>(null);
 
+  /**
+   * Handle forumyzing a YouTube video
+   */
   const handleForumyze = async () => {
-    // Rate limiting: max 5 forumize attempts per minute
-    if (!rateLimiter.isAllowed('forumize', 5, 60000)) {
-      setError('Too many requests. Please wait a minute before trying again.');
+    // Client-side rate limiting: max 5 forumyze attempts per minute
+    if (!rateLimiter.isAllowed('forumyze', 5, 60000)) {
+      setError('Too many forumyze requests. Please wait a minute before trying again.');
       return;
     }
 
@@ -50,48 +53,49 @@ function WebApp() {
     setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/api/forumize`, {
+        // Call backend to forumyze the video
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/api/forumyze`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ videoId })
         });
 
-        if (!res.ok) throw new Error('Failed to forumize');
-        const data = await res.json();
+        if (!res.ok) throw new Error('Failed to forumyze video');
+        const forumyzedData = await res.json();
 
-        // Get video info
+        // Fetch video metadata from YouTube oEmbed
         const oEmbed = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
         if (oEmbed.ok) {
           const info = await oEmbed.json();
-          data.videoTitle = info.title;
-          data.videoChannel = info.author_name;
+          forumyzedData.videoTitle = info.title;
+          forumyzedData.videoChannel = info.author_name;
         }
 
-        data.videoId = videoId;
-        setCurrentForum(data);
+        forumyzedData.videoId = videoId;
+        setCurrentForumyzed(forumyzedData);
 
-        // Save to library
+        // Save forumyzed data to user library
         const saveRes = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'}/api/forum/save`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             videoId,
-            videoTitle: data.videoTitle,
-            videoChannel: data.videoChannel,
-            forumData: data
+            videoTitle: forumyzedData.videoTitle,
+            videoChannel: forumyzedData.videoChannel,
+            forumData: forumyzedData
           })
         });
 
         if (!saveRes.ok) {
           const errorData = await saveRes.json();
-          throw new Error(errorData.error || 'Failed to save forum');
+          throw new Error(errorData.error || 'Failed to save forumyzed data');
         }
 
         const saved = await saveRes.json();
         setForumId(saved.id);
       } catch (err: any) {
         setError(sanitizeErrorMessage(err));
-        console.error('Forumize error:', err);
+        console.error('Forumyze error:', err);
       } finally {
         setLoading(false);
         setShowBlinds(false);
@@ -99,10 +103,13 @@ function WebApp() {
     }, 1500);
   };
 
+  /**
+   * Generate audio summary of forumyzed forum
+   */
   const handlePodcast = async () => {
     if (!forumId) return;
 
-    // Rate limiting: max 3 podcast generations per minute
+    // Client-side rate limiting: max 3 podcast generations per minute
     if (!rateLimiter.isAllowed('podcast', 3, 60000)) {
       setError('Too many podcast requests. Please wait before trying again.');
       return;
@@ -128,24 +135,33 @@ function WebApp() {
     }
   };
 
-  const handleSelectForum = (forum: any) => {
-    setCurrentForum(forum);
-    setForumId(forum.id);
-    setTab('forumize');
+  /**
+   * Load a forumyzed forum from library
+   */
+  const handleSelectForumyzed = (forumyzedData: any) => {
+    setCurrentForumyzed(forumyzedData);
+    setForumId(forumyzedData.id);
+    setTab('forumyze');
   };
 
-  const CommentItem = ({ comment, depth = 0 }: { comment: Comment; depth?: number }) => {
+  /**
+   * Render individual forumyzed comment with nested replies
+   */
+  const ForumyzedCommentItem = ({ comment, depth = 0 }: { comment: ForumyzedComment; depth?: number }) => {
     const [upvotes, setUpvotes] = useState(comment.upvotes || 0);
     const [downvotes, setDownvotes] = useState(comment.downvotes || 0);
     const isBotDetected = comment.category === 'bot';
 
-    // Sanitize user-generated content to prevent XSS
+    // Sanitize user-generated content to prevent XSS attacks
     const safeAuthor = sanitizeText(comment.author);
     const safeText = sanitizeText(comment.text);
     const safeCategory = sanitizeText(comment.category);
 
     return (
-      <div className={`comment-wrapper ${comment.category === 'toxic' ? 'hell-comment' : ''}`} style={{ marginLeft: depth * 32 }}>
+      <div
+        className={`comment-wrapper ${comment.category === 'toxic' ? 'hell-comment' : ''}`}
+        style={{ marginLeft: depth * 32 }}
+      >
         <div className="comment-author">
           <div className="avatar">{safeAuthor[0] || '?'}</div>
           <span className="comment-author-name">{safeAuthor}</span>
@@ -167,17 +183,21 @@ function WebApp() {
             Reply
           </button>
         </div>
-        {comment.replies?.map(reply => <CommentItem key={reply.id} comment={reply} depth={depth + 1} />)}
+        {comment.replies?.map(reply => (
+          <ForumyzedCommentItem key={reply.id} comment={reply} depth={depth + 1} />
+        ))}
       </div>
     );
   };
 
-  const filteredThreads = currentForum && activeCategory !== 'all'
-    ? currentForum.threads.filter((t: Comment) => t.category === activeCategory)
-    : currentForum?.threads || [];
+  // Filter forumyzed threads by selected category
+  const filteredThreads = currentForumyzed && activeCategory !== 'all'
+    ? currentForumyzed.threads.filter((t: ForumyzedComment) => t.category === activeCategory)
+    : currentForumyzed?.threads || [];
 
   return (
     <div className="app-container">
+      {/* Loading animation overlay */}
       {showBlinds && (
         <div className="blinds-overlay">
           <div className="blinds-container">
@@ -197,21 +217,30 @@ function WebApp() {
 
       <div className="app-main">
         <div className="forum-tabs">
-          <button onClick={() => setTab('forumize')} className={`tab ${tab === 'forumize' ? 'active' : ''}`}>
+          <button
+            onClick={() => setTab('forumyze')}
+            className={`tab ${tab === 'forumyze' ? 'active' : ''}`}
+          >
             <span className="material-icons">movie</span>
             Forumyze
           </button>
-          <button onClick={() => setTab('library')} className={`tab ${tab === 'library' ? 'active' : ''}`}>
+          <button
+            onClick={() => setTab('library')}
+            className={`tab ${tab === 'library' ? 'active' : ''}`}
+          >
             <span className="material-icons">video_library</span>
             Library
           </button>
-          <button onClick={() => setTab('settings')} className={`tab ${tab === 'settings' ? 'active' : ''}`}>
+          <button
+            onClick={() => setTab('settings')}
+            className={`tab ${tab === 'settings' ? 'active' : ''}`}
+          >
             <span className="material-icons">settings</span>
             Settings
           </button>
         </div>
 
-        {tab === 'forumize' && (
+        {tab === 'forumyze' && (
           <>
             <div className="input-section">
               <div className="url-input-wrapper">
@@ -224,18 +253,27 @@ function WebApp() {
                   onKeyPress={(e) => e.key === 'Enter' && handleForumyze()}
                 />
               </div>
-              <button onClick={handleForumyze} disabled={loading} className="forumize-button">
+              <button
+                onClick={handleForumyze}
+                disabled={loading}
+                className="forumyze-button"
+              >
                 {loading ? 'FORUMYZING...' : 'FORUMYZE?'}
               </button>
             </div>
 
             {error && <div className="error-message">{error}</div>}
 
-            {currentForum && (
+            {currentForumyzed && (
               <div className="content-area">
                 <div className="video-container">
                   <iframe
-                    src={`https://www.youtube.com/embed/${currentForum.videoId}`}
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${currentForumyzed.videoId}?autoplay=0&controls=1&modestbranding=1`}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
                 </div>
@@ -243,12 +281,18 @@ function WebApp() {
                 <div className="forum-container">
                   <div className="forum-header">
                     <div>
-                      <h2 className="forum-title">{sanitizeText(currentForum.videoTitle || 'Forum')}</h2>
+                      <h2 className="forum-title">
+                        {sanitizeText(currentForumyzed.videoTitle || 'Forumyzed Forum')}
+                      </h2>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>
-                        {sanitizeText(currentForum.videoChannel || '')}
+                        {sanitizeText(currentForumyzed.videoChannel || '')}
                       </p>
                     </div>
-                    <button onClick={handlePodcast} disabled={loadingAudio} className="btn-primary">
+                    <button
+                      onClick={handlePodcast}
+                      disabled={loadingAudio}
+                      className="btn-primary"
+                    >
                       🎙️ {loadingAudio ? 'Generating...' : 'Podcast'}
                     </button>
                   </div>
@@ -261,43 +305,72 @@ function WebApp() {
                     </div>
                   )}
 
-                  {currentForum.stats && (
-                    <div className="forum-stats" style={{ padding: 16, borderBottom: '1px solid var(--border)' }}>
-                      <span>{currentForum.stats.totalComments} comments</span>
-                      <span style={{ color: 'var(--cat-genuine)' }}>{currentForum.stats.genuinePercentage}% genuine</span>
-                      <span style={{ color: 'var(--cat-spam)' }}>{currentForum.stats.spamPercentage}% spam</span>
-                      <span style={{ color: 'var(--cat-bot)' }}>{currentForum.stats.botPercentage}% bot</span>
+                  {currentForumyzed.stats && (
+                    <div
+                      className="forum-stats"
+                      style={{ padding: 16, borderBottom: '1px solid var(--border)' }}
+                    >
+                      <span>{currentForumyzed.stats.totalComments} comments</span>
+                      <span style={{ color: 'var(--cat-genuine)' }}>
+                        {currentForumyzed.stats.genuinePercentage}% genuine
+                      </span>
+                      <span style={{ color: 'var(--cat-spam)' }}>
+                        {currentForumyzed.stats.spamPercentage}% spam
+                      </span>
+                      <span style={{ color: 'var(--cat-bot)' }}>
+                        {currentForumyzed.stats.botPercentage}% bot
+                      </span>
                     </div>
                   )}
 
                   <div className="forum-tabs">
-                    <button onClick={() => setActiveCategory('all')} className={`tab ${activeCategory === 'all' ? 'active' : ''}`}>
+                    <button
+                      onClick={() => setActiveCategory('all')}
+                      className={`tab ${activeCategory === 'all' ? 'active' : ''}`}
+                    >
                       All
                     </button>
-                    <button onClick={() => setActiveCategory('genuine')} className={`tab ${activeCategory === 'genuine' ? 'active' : ''}`}>
+                    <button
+                      onClick={() => setActiveCategory('genuine')}
+                      className={`tab ${activeCategory === 'genuine' ? 'active' : ''}`}
+                    >
                       Genuine
                     </button>
-                    <button onClick={() => setActiveCategory('question')} className={`tab ${activeCategory === 'question' ? 'active' : ''}`}>
+                    <button
+                      onClick={() => setActiveCategory('question')}
+                      className={`tab ${activeCategory === 'question' ? 'active' : ''}`}
+                    >
                       Questions
                     </button>
-                    <button onClick={() => setActiveCategory('spam')} className={`tab ${activeCategory === 'spam' ? 'active' : ''}`}>
+                    <button
+                      onClick={() => setActiveCategory('spam')}
+                      className={`tab ${activeCategory === 'spam' ? 'active' : ''}`}
+                    >
                       Spam
                     </button>
-                    <button onClick={() => setActiveCategory('bot')} className={`tab ${activeCategory === 'bot' ? 'active' : ''}`}>
+                    <button
+                      onClick={() => setActiveCategory('bot')}
+                      className={`tab ${activeCategory === 'bot' ? 'active' : ''}`}
+                    >
                       Bots
                     </button>
-                    <button onClick={() => setActiveCategory('toxic')} className={`tab hell-tab ${activeCategory === 'toxic' ? 'active' : ''}`}>
+                    <button
+                      onClick={() => setActiveCategory('toxic')}
+                      className={`tab hell-tab ${activeCategory === 'toxic' ? 'active' : ''}`}
+                    >
                       🔥 Hell
                     </button>
                   </div>
 
                   <div className="forum-posts">
                     {filteredThreads.length > 0 ? (
-                      filteredThreads.map((t: Comment) => <CommentItem key={t.id} comment={t} />)
+                      filteredThreads.map((t: ForumyzedComment) => (
+                        <ForumyzedCommentItem key={t.id} comment={t} />
+                      ))
                     ) : (
                       <div className="empty-state">
                         <span className="material-icons">forum</span>
-                        <h3>No Comments</h3>
+                        <h3>No Comments in This Category</h3>
                       </div>
                     )}
                   </div>
@@ -305,16 +378,18 @@ function WebApp() {
               </div>
             )}
 
-            {!currentForum && !loading && (
+            {!currentForumyzed && !loading && (
               <div className="empty-state" style={{ height: '60vh' }}>
                 <span className="material-icons" style={{ fontSize: 72 }}>movie</span>
-                <h3>Paste a YouTube URL and click FORUMYZE?</h3>
+                <h3>Paste a YouTube URL and click FORUMYZE to get started</h3>
               </div>
             )}
           </>
         )}
 
-        {tab === 'library' && <ForumLibrary onSelect={handleSelectForum} />}
+        {tab === 'library' && (
+          <ForumLibrary onSelectForumyzed={handleSelectForumyzed} />
+        )}
         {tab === 'settings' && <SettingsPanel />}
       </div>
     </div>

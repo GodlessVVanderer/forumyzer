@@ -25,67 +25,91 @@ const defaultSettings: FilterSettings = {
   customKeywords: []
 };
 
+/**
+ * SettingsPanel - Manage forumyze filtering preferences
+ */
 export default function SettingsPanel() {
   const [settings, setSettings] = useState<FilterSettings>(defaultSettings);
   const [savedMsg, setSavedMsg] = useState('');
 
   useEffect(() => {
-    // Use secure storage instead of direct localStorage
-    const stored = secureStorage.getItem<FilterSettings>('filterSettings', defaultSettings);
+    // Load forumyze settings from secure storage
+    const stored = secureStorage.getItem<FilterSettings>('forumyzedSettings', defaultSettings);
     setSettings(stored);
   }, []);
 
-  const save = () => {
+  const saveForumyzedSettings = () => {
     try {
-      secureStorage.setItem('filterSettings', settings);
-      setSavedMsg('✅ Settings saved securely');
+      secureStorage.setItem('forumyzedSettings', settings);
+      setSavedMsg('✅ Forumyze settings saved securely');
     } catch (err) {
-      setSavedMsg('❌ Failed to save settings');
-      console.error('Settings save error:', err);
+      setSavedMsg('❌ Failed to save forumyze settings');
+      console.error('Forumyzed settings save error:', err);
     }
     setTimeout(() => setSavedMsg(''), 3000);
   };
 
   return (
     <div>
-      <h2>⚙️ Settings</h2>
-      {/* Spam sensitivity */}
+      <h2>⚙️ Forumyze Settings</h2>
+
+      {/* Spam sensitivity for forumyze classification */}
       <div style={{ marginBottom: 12 }}>
-        <label>Spam Sensitivity: </label>
+        <label>Spam Classification Sensitivity: </label>
         <select
           value={settings.spamSensitivity}
-          onChange={(e) => setSettings({ ...settings, spamSensitivity: e.target.value as any })}
+          onChange={(e) =>
+            setSettings({ ...settings, spamSensitivity: e.target.value as any })
+          }
           style={{ marginLeft: 8, padding: 4, fontSize: 16 }}
         >
-          <option value="strict">Strict</option>
-          <option value="normal">Normal</option>
-          <option value="lenient">Lenient</option>
+          <option value="strict">Strict (aggressive spam detection)</option>
+          <option value="normal">Normal (balanced)</option>
+          <option value="lenient">Lenient (conservative spam detection)</option>
         </select>
       </div>
-      {/* Categories */}
+
+      {/* Show/hide forumyzed categories */}
       <div style={{ marginBottom: 12 }}>
-        <h4>Show Categories</h4>
-        {Object.entries(settings.categories).map(([cat, val]) => (
-          <label key={cat} style={{ display: 'block', marginBottom: 6 }}>
+        <h4>Forumyzed Categories to Display</h4>
+        {Object.entries(settings.categories).map(([category, isVisible]) => (
+          <label key={category} style={{ display: 'block', marginBottom: 6 }}>
             <input
               type="checkbox"
-              checked={val}
-              onChange={(e) => setSettings({
-                ...settings,
-                categories: { ...settings.categories, [cat]: e.target.checked }
-              })}
+              checked={isVisible}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  categories: { ...settings.categories, [category]: e.target.checked }
+                })
+              }
             />
-            <span style={{ marginLeft: 6, textTransform: 'capitalize' }}>{cat}</span>
+            <span style={{ marginLeft: 6, textTransform: 'capitalize' }}>
+              {category}
+            </span>
           </label>
         ))}
       </div>
+
       <button
-        onClick={save}
-        style={{ padding: 8, background: '#FF0033', color: 'white', border: 'none', borderRadius: 4, fontSize: 16 }}
+        onClick={saveForumyzedSettings}
+        style={{
+          padding: 8,
+          background: '#FF0033',
+          color: 'white',
+          border: 'none',
+          borderRadius: 4,
+          fontSize: 16,
+          cursor: 'pointer'
+        }}
       >
-        Save Settings
+        Save Forumyze Settings
       </button>
-      {savedMsg && <p style={{ color: '#4CAF50', marginTop: 8 }}>{savedMsg}</p>}
+      {savedMsg && (
+        <p style={{ color: savedMsg.includes('✅') ? '#4CAF50' : '#f44336', marginTop: 8 }}>
+          {savedMsg}
+        </p>
+      )}
     </div>
   );
 }
