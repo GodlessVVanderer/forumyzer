@@ -1,51 +1,17 @@
-/* Golden Ratio Design System */
-:root {
-  /* Golden Ratio (φ) */
-  --phi: 1.618033988749895;
-  --phi-inv: 0.618033988749895;
-
-  /* Base unit: 16px */
-  --base: 16px;
-
-  /* Fibonacci sequence for spacing (px) */
-  --space-xs: 8px;     /* F(3) */
-  --space-sm: 13px;    /* F(4) */
-  --space-md: 21px;    /* F(5) */
-  --space-lg: 34px;    /* F(6) */
-  --space-xl: 55px;    /* F(7) */
-  --space-2xl: 89px;   /* F(8) */
-  --space-3xl: 144px;  /* F(9) */
-
-  /* Typography - Golden Ratio scale */
-  --text-xs: calc(var(--base) / var(--phi) / var(--phi));      /* ~6.1px */
-  --text-sm: calc(var(--base) / var(--phi));                   /* ~9.9px */
-  --text-base: var(--base);                                    /* 16px */
-  --text-md: calc(var(--base) * var(--phi));                   /* ~25.9px */
-  --text-lg: calc(var(--base) * var(--phi) * var(--phi));      /* ~41.9px */
-  --text-xl: calc(var(--base) * var(--phi) * var(--phi) * var(--phi)); /* ~67.8px */
-
-  /* Colors inspired by fractal depth */
-  --color-bg: #0a0a0a;
-  --color-surface: #1a1a1a;
-  --color-surface-elevated: #252525;
-  --color-border: #333;
-  --color-border-highlight: #ff3366;
-  --color-text: #ffffff;
-  --color-text-secondary: #a0a0a0;
-  --color-accent: #ff3366;
-  --color-accent-glow: rgba(255, 51, 102, 0.2);
-}
+/* ============================================
+   LANDING PAGE - Using Unified Design System
+   ============================================ */
 
 /* Landing Page Container */
 .landing-page {
   min-height: 100vh;
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding: var(--space-2xl) var(--space-lg);
 
   /* Subtle fractal-inspired background */
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(255, 51, 102, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 20% 30%, var(--accent-glow) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, rgba(102, 51, 255, 0.05) 0%, transparent 50%);
 }
 
@@ -58,16 +24,16 @@
 
 .landing-title {
   font-size: var(--text-xl);
-  font-family: 'Audiowide', cursive;
+  font-family: var(--font-display);
   margin: 0 0 var(--space-md) 0;
-  letter-spacing: calc(var(--base) / 4);
+  letter-spacing: calc(var(--tracking-widest) * 1.5);
 
   /* Glowing text effect */
   text-shadow:
-    0 0 calc(var(--space-md)) var(--color-accent-glow),
-    0 0 calc(var(--space-lg)) var(--color-accent-glow);
+    0 0 var(--space-md) var(--accent-glow),
+    0 0 var(--space-lg) var(--accent-glow);
 
-  background: linear-gradient(135deg, #ff3366, #ff6b9d);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -75,10 +41,10 @@
 
 .landing-subtitle {
   font-size: var(--text-md);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 300;
-  letter-spacing: calc(var(--base) / 8);
+  letter-spacing: var(--tracking-widest);
 }
 
 /* Features Grid - Golden Ratio Layout */
@@ -92,14 +58,11 @@
 
 /* Feature Cards */
 .feature-card {
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: var(--space-md);
-
-  /* Golden ratio for padding */
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
   padding: var(--space-lg);
-
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-slow) var(--ease-out);
   position: relative;
   overflow: hidden;
 
@@ -113,8 +76,8 @@
     repeating-linear-gradient(
       45deg,
       transparent,
-      transparent calc(var(--space-xl)),
-      rgba(255, 255, 255, 0.01) calc(var(--space-xl)),
+      transparent var(--space-xl),
+      rgba(255, 255, 255, 0.01) var(--space-xl),
       rgba(255, 255, 255, 0.01) calc(var(--space-xl) * 2)
     );
 }
@@ -122,17 +85,14 @@
 .feature-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: radial-gradient(
     circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 51, 102, 0.1) 0%,
+    var(--accent-glow) 0%,
     transparent 50%
   );
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--transition-base);
   pointer-events: none;
 }
 
@@ -142,17 +102,17 @@
 
 .feature-card:hover {
   transform: translateY(calc(var(--space-xs) * -1)) scale(1.02);
-  border-color: var(--color-accent);
-  background-color: var(--color-surface-elevated);
+  border-color: var(--accent-primary);
+  background-color: var(--bg-elevated);
   box-shadow:
-    0 var(--space-md) var(--space-xl) rgba(0, 0, 0, 0.3),
-    0 0 var(--space-lg) var(--color-accent-glow);
+    var(--shadow-lg),
+    var(--shadow-glow-strong);
 }
 
 /* Highlighted Feature Card */
 .feature-highlighted {
-  border-color: var(--color-border-highlight);
-  background: linear-gradient(135deg, var(--color-surface) 0%, rgba(255, 51, 102, 0.05) 100%);
+  border-color: var(--accent-primary);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--accent-glow) 100%);
 }
 
 .feature-highlighted::after {
@@ -164,12 +124,12 @@
   bottom: -2px;
   background: linear-gradient(
     135deg,
-    var(--color-accent),
+    var(--accent-primary),
     transparent 30%,
     transparent 70%,
-    var(--color-accent)
+    var(--accent-primary)
   );
-  border-radius: var(--space-md);
+  border-radius: var(--radius-md);
   z-index: -1;
   opacity: 0.3;
   animation: borderPulse 3s ease-in-out infinite;
@@ -180,7 +140,7 @@
   font-size: calc(var(--text-lg) * var(--phi-inv));
   margin-bottom: var(--space-md);
   display: inline-block;
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-base);
 }
 
 .feature-card:hover .feature-icon {
@@ -192,15 +152,15 @@
   font-size: var(--text-md);
   margin: 0 0 var(--space-sm) 0;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  color: var(--color-text);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-primary);
 }
 
 /* Feature Description */
 .feature-description {
   font-size: var(--text-base);
-  line-height: var(--phi);
-  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 300;
 }
@@ -214,23 +174,23 @@
 .cta-button {
   font-size: var(--text-md);
   padding: var(--space-md) calc(var(--space-lg) * var(--phi));
-  background: linear-gradient(135deg, #ff3366, #ff6b9d);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: white;
   border: none;
   border-radius: calc(var(--space-lg) * var(--phi));
   font-weight: 600;
   cursor: pointer;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
-  box-shadow: 0 var(--space-sm) var(--space-lg) var(--color-accent-glow);
-  font-family: 'Audiowide', cursive;
+  letter-spacing: var(--tracking-wide);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-glow);
+  font-family: var(--font-display);
 }
 
 .cta-button:hover {
   transform: translateY(calc(var(--space-xs) * -1)) scale(1.05);
   box-shadow:
-    0 var(--space-md) var(--space-xl) var(--color-accent-glow),
-    0 0 var(--space-lg) var(--color-accent);
+    var(--shadow-md),
+    var(--shadow-glow-strong);
 }
 
 .cta-button:active {
@@ -303,10 +263,7 @@
 .landing-page::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-image:
     radial-gradient(circle at 10% 20%, rgba(255, 51, 102, 0.03) 0%, transparent 30%),
     radial-gradient(circle at 90% 80%, rgba(102, 51, 255, 0.03) 0%, transparent 30%),
