@@ -1,8 +1,8 @@
 #!/bin/bash
 # Docker Hub Build & Push Script for Forumyzer
 
-# CONFIGURATION - UPDATE THESE
-DOCKER_USERNAME="your-dockerhub-username"
+# CONFIGURATION
+DOCKER_USERNAME="godlesswanderer"
 IMAGE_NAME="forumyzer-backend"
 VERSION="latest"
 
@@ -31,8 +31,7 @@ if [ $? -eq 0 ]; then
         echo "   3. Under 'Deploy', select 'Docker Image'"
         echo "   4. Enter: ${IMAGE_TAG}"
         echo ""
-        echo "   Or add to railway.json:"
-        echo "   {\"build\": {\"dockerImage\": \"${IMAGE_TAG}\"}}"
+        echo "   Or the image is already configured in railway.json"
     else
         echo "❌ Push failed! Make sure you're logged in:"
         echo "   docker login"

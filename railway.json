@@ -1,6 +1,6 @@
 {
   "rootDirectory": "backend",
   "build": {
-    "dockerImage": "YOUR-DOCKERHUB-USERNAME/forumyzer-backend:latest"
+    "dockerImage": "godlesswanderer/forumyzer-backend:latest"
   }
 }
