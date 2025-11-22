@@ -1,7 +1,18 @@
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db-async');
 
+/**
+ * ForumModel - manages forumyzed forum persistence
+ * Provides operations to save, retrieve, and share forumyzed forums.
+ * All methods are async to use non-blocking file I/O.
+ */
 class ForumModel {
+  /**
+   * Create and persist a new forumyzed forum.
+   * @param {Object} forumData Data containing videoId, title, channel and forumyzed threads/stats.
+   * @param {String} userId Owner of the forumyzed forum (optional).
+   * @returns {Object} The newly created forumyzed forum record.
+   */
   static async create(forumData, userId = null) {
     const data = await db.load();
     const forumyzedForum = {
@@ -14,9 +25,8 @@ class ForumModel {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       userId,
-      isPublic: true,
-      shareToken: null,
-      timesAccessed: 0
+      isPublic: false,
+      shareToken: null
     };
     data.forums.push(forumyzedForum);
     await db.save(data);
@@ -24,34 +34,30 @@ class ForumModel {
   }
 
   /**
-   * CHECK IF VIDEO ALREADY FORUMYZED
-   * Returns existing forumyzed data if video already processed
+   * Retrieve all forumyzed forums for a given user.
+   * @param {String} userId Owner ID.
+   * @returns {Array} Array of forumyzed forums.
    */
-  static async findByVideoId(videoId) {
-    const data = await db.load();
-    const existing = data.forums.find(f => f.videoId === videoId);
-    
-    if (existing) {
-      // Increment access counter
-      existing.timesAccessed = (existing.timesAccessed || 0) + 1;
-      existing.lastAccessedAt = new Date().toISOString();
-      await db.save(data);
-      console.log(`✅ Video ${videoId} already forumyzed (accessed ${existing.timesAccessed} times)`);
-    }
-    
-    return existing;
-  }
-
   static async findByUser(userId) {
     const data = await db.load();
     return data.forums.filter(f => f.userId === userId);
   }
 
+  /**
+   * Find a single forumyzed forum by ID.
+   * @param {String} id Forumyzed forum ID.
+   * @returns {Object} The forumyzed forum record.
+   */
   static async findById(id) {
     const data = await db.load();
     return data.forums.find(f => f.id === id);
   }
 
+  /**
+   * Generate a share token for a forumyzed forum and mark it public.
+   * @param {String} id Forumyzed forum ID.
+   * @returns {String} The generated share token.
+   */
   static async generateShareToken(id) {
     const data = await db.load();
     const forumyzedForum = data.forums.find(f => f.id === id);
@@ -63,16 +69,29 @@ class ForumModel {
     return forumyzedForum.shareToken;
   }
 
+  /**
+   * Find a forumyzed forum by share token.
+   * @param {String} token Share token.
+   * @returns {Object} The forumyzed forum record.
+   */
   static async findByShareToken(token) {
     const data = await db.load();
     return data.forums.find(f => f.shareToken === token);
   }
 
+  /**
+   * Add a reply to a thread within a forumyzed forum.
+   * @param {String} forumId Forumyzed forum ID.
+   * @param {String} threadId Thread ID.
+   * @param {Object} reply Reply object { id, author, text, category, replies }
+   * @returns {Object} Updated forumyzed forum.
+   */
   static async addReply(forumId, threadId, reply) {
     const data = await db.load();
     const forumyzedForum = data.forums.find(f => f.id === forumId);
     if (!forumyzedForum) return null;
 
+    // Recursively search for thread and add reply
     const pushReply = (threads) => {
       for (const thread of threads) {
         if (thread.id === threadId) {
