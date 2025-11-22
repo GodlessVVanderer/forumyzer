@@ -1,179 +1,364 @@
-/* Import TRON design system */
-@import './design-system.css';
+/* FORUMYZER - YouTube TRON Design System */
 
-/* ============================================
-   APP LAYOUT - YouTube Style
-   ============================================ */
-
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: var(--tron-black);
+:root {
+  /* YouTube Colors - Darker */
+  --yt-black: #0f0f0f;
+  --yt-dark: #181818;
+  --yt-darker: #0a0a0a;
+  --yt-red: #cc0000;
+  --yt-red-bright: #ff0000;
+  --yt-red-glow: rgba(255, 0, 0, 0.4);
+  
+  /* Grays */
+  --gray-100: #f1f1f1;
+  --gray-200: #aaaaaa;
+  --gray-300: #717171;
+  --gray-400: #3f3f3f;
+  --gray-500: #272727;
+  
+  /* TRON Grid */
+  --grid-color: rgba(255, 0, 0, 0.1);
+  
+  /* Spacing */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  
+  /* Typography */
+  --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 28px;
+  
+  /* Effects */
+  --transition: 0.2s ease;
+  --glow: 0 0 20px var(--yt-red-glow);
 }
 
-/* ============================================
-   HEADER - YouTube Red Bar
-   ============================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
+body {
+  font-family: var(--font-main);
+  background: var(--yt-black);
+  color: var(--gray-100);
+  font-size: var(--font-size-md);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* TRON GRID BACKGROUND */
+.app-container {
+  background: 
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(180deg, var(--grid-color) 1px, transparent 1px),
+    var(--yt-black);
+  background-size: 50px 50px;
+  min-height: 100vh;
+}
+
+/* BLINDS OPENING ANIMATION */
+.blinds-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.blinds-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.blind {
+  flex: 1;
+  background: #000;
+  animation: blindOpen 0.8s ease-out forwards;
+}
+
+.blind:nth-child(1) { animation-delay: 0s; }
+.blind:nth-child(2) { animation-delay: 0.08s; }
+.blind:nth-child(3) { animation-delay: 0.16s; }
+.blind:nth-child(4) { animation-delay: 0.24s; }
+.blind:nth-child(5) { animation-delay: 0.32s; }
+.blind:nth-child(6) { animation-delay: 0.40s; }
+.blind:nth-child(7) { animation-delay: 0.48s; }
+.blind:nth-child(8) { animation-delay: 0.56s; }
+
+@keyframes blindOpen {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(0); }
+}
+
+.blinds-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 72px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: var(--yt-red-bright);
+  text-shadow: 
+    0 0 40px var(--yt-red-glow),
+    0 0 80px var(--yt-red-glow);
+  animation: textGlow 0.8s ease-in-out;
+  font-family: 'Arial Black', sans-serif;
+}
+
+@keyframes textGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; text-shadow: 0 0 60px var(--yt-red-glow); }
+}
+
+/* HEADER - YouTube Style */
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-sm) var(--space-md);
-  background: var(--tron-black);
-  border-bottom: var(--border-glow) solid var(--tron-red);
-  box-shadow: 0 0 20px var(--tron-red-glow);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--yt-black);
+  border-bottom: 3px solid var(--yt-red);
+  box-shadow: var(--glow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .logo h1 {
-  font-size: var(--text-lg);
+  font-size: var(--font-size-xxl);
   font-weight: 900;
-  color: var(--tron-red-bright);
+  color: var(--yt-red-bright);
   text-transform: uppercase;
-  letter-spacing: 2px;
-  text-shadow: 0 0 10px var(--tron-red-glow);
+  letter-spacing: 4px;
+  text-shadow: 0 0 20px var(--yt-red-glow);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: 'Arial Black', sans-serif;
 }
 
-/* ============================================
-   TABS - Simple YouTube Style
-   ============================================ */
-
-.app-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.logo h1:hover {
+  text-shadow: 0 0 30px var(--yt-red-glow);
+  letter-spacing: 6px;
 }
 
-.forum-tabs {
-  display: flex;
-  background: var(--tron-darker);
-  border-bottom: var(--border-width) solid var(--tron-gray-dark);
-}
-
-.tab {
-  padding: var(--space-sm) var(--space-md);
-  background: transparent;
+/* BUTTONS - YouTube Red Style */
+.forumyze-button,
+.btn-primary {
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--yt-red);
+  color: white;
   border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--tron-gray);
-  font-size: var(--text-sm);
-  font-weight: 600;
+  border-radius: 4px;
+  font-size: var(--font-size-md);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.tab:hover {
-  color: var(--tron-white);
-  background: var(--tron-dark);
+.forumyze-button:hover,
+.btn-primary:hover {
+  background: var(--yt-red-bright);
+  box-shadow: var(--glow);
+  transform: translateY(-2px);
 }
 
-.tab.active {
-  color: var(--tron-red-bright);
-  border-bottom-color: var(--tron-red-bright);
-  box-shadow: 0 2px 10px var(--tron-red-glow);
+.forumyze-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.tab .material-icons {
-  font-size: var(--text-md);
-}
-
-/* ============================================
-   INPUT SECTION - Clean YouTube Style
-   ============================================ */
-
-.input-section {
-  display: flex;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  background: var(--tron-darker);
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
+/* INPUT - YouTube Style */
 .url-input-wrapper {
   flex: 1;
   display: flex;
   align-items: center;
-  background: var(--tron-black);
-  border: var(--border-width) solid var(--tron-gray-dark);
+  background: var(--yt-dark);
+  border: 2px solid var(--gray-400);
+  border-radius: 4px;
   padding: 0 var(--space-sm);
-  transition: all var(--transition);
+  transition: var(--transition);
 }
 
 .url-input-wrapper:focus-within {
-  border-color: var(--tron-red);
-  box-shadow: 0 0 10px var(--tron-red-glow);
-}
-
-.url-input-wrapper .material-icons {
-  color: var(--tron-red);
-  margin-right: var(--space-xs);
+  border-color: var(--yt-red);
+  box-shadow: var(--glow);
 }
 
 .url-input-wrapper input {
   flex: 1;
   background: transparent;
   border: none;
-  color: var(--tron-white);
+  color: var(--gray-100);
+  font-size: var(--font-size-md);
   padding: var(--space-sm);
+  outline: none;
 }
 
-.forumyze-button {
-  padding: var(--space-sm) var(--space-lg);
-  background: var(--tron-red);
-  border: var(--border-glow) solid var(--tron-red-bright);
-  color: var(--tron-white);
+.url-input-wrapper input::placeholder {
+  color: var(--gray-300);
+}
+
+/* FORUM CONTAINER - YouTube Comments Style */
+.forum-container {
+  background: var(--yt-dark);
+  border: 2px solid var(--yt-red);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--glow);
+}
+
+.forum-header {
+  padding: var(--space-md);
+  border-bottom: 2px solid var(--yt-red);
+  background: var(--yt-darker);
+}
+
+.forum-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--gray-100);
+  margin-bottom: var(--space-xs);
+}
+
+/* TABS - YouTube Style */
+.forum-tabs {
+  display: flex;
+  background: var(--yt-darker);
+  border-bottom: 1px solid var(--gray-500);
+  overflow-x: auto;
+}
+
+.tab {
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--gray-200);
+  font-size: var(--font-size-sm);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  box-shadow: 0 0 15px var(--tron-red-glow);
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
 }
 
-.forumyze-button:hover {
-  background: var(--tron-red-bright);
-  box-shadow: 0 0 25px var(--tron-red-glow);
+.tab:hover {
+  color: var(--gray-100);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-/* ============================================
-   CONTENT AREA - YouTube Layout
-   ============================================ */
+.tab.active {
+  color: var(--yt-red-bright);
+  border-bottom-color: var(--yt-red-bright);
+  background: rgba(255, 0, 0, 0.1);
+}
 
-.content-area {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: var(--space-md);
+.timeout-tab.active {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 10px var(--yt-red-glow); }
+  50% { box-shadow: 0 0 20px var(--yt-red-glow); }
+}
+
+/* COMMENTS - YouTube Style */
+.forum-posts {
   padding: var(--space-md);
-  flex: 1;
-  overflow: hidden;
-  max-width: 1600px;
-  margin: 0 auto;
-  width: 100%;
+  max-height: 600px;
+  overflow-y: auto;
 }
 
-@media (max-width: 1024px) {
-  .content-area {
-    grid-template-columns: 1fr;
-  }
+.comment-wrapper {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--gray-500);
+  transition: var(--transition);
 }
 
-/* ============================================
-   VIDEO - TRON Border
-   ============================================ */
+.comment-wrapper:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
 
+.timeout-comment {
+  border-left: 4px solid var(--yt-red);
+  background: rgba(255, 0, 0, 0.05);
+}
+
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--yt-red);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+}
+
+.comment-author-name {
+  font-weight: 600;
+  color: var(--gray-100);
+  font-size: var(--font-size-sm);
+}
+
+.category-badge {
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.category-badge.genuine { background: #065f46; color: #10b981; }
+.category-badge.spam { background: #3f3f3f; color: #aaa; }
+.category-badge.bot { background: #7c2d12; color: #fb923c; }
+.category-badge.toxic { background: #7f1d1d; color: #ef4444; }
+
+.comment-text {
+  color: var(--gray-100);
+  font-size: var(--font-size-md);
+  line-height: 1.6;
+  margin: var(--space-xs) 0;
+}
+
+/* VIDEO CONTAINER - YouTube Embed */
 .video-container {
-  background: var(--tron-black);
-  border: var(--border-glow) solid var(--tron-red);
-  box-shadow: 0 0 20px var(--tron-red-glow);
-  min-height: 400px;
-  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--yt-black);
+  border: 3px solid var(--yt-red);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--glow);
+  margin-bottom: var(--space-md);
 }
 
 .video-container iframe {
@@ -182,459 +367,91 @@
   border: none;
 }
 
-/* ============================================
-   FORUM - YouTube Comments Style
-   ============================================ */
-
-.forum-container {
-  display: flex;
-  flex-direction: column;
-  background: var(--tron-darker);
-  border: var(--border-width) solid var(--tron-gray-dark);
-  overflow: hidden;
-}
-
-.forum-header {
-  padding: var(--space-sm) var(--space-md);
-  border-bottom: var(--border-width) solid var(--tron-red);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.forum-title {
-  font-size: var(--text-md);
-  font-weight: 700;
-  color: var(--tron-white);
-}
-
+/* STATS - YouTube Style */
 .forum-stats {
   display: flex;
-  gap: var(--space-md);
-  font-size: var(--text-xs);
-  color: var(--tron-gray);
-}
-
-/* ============================================
-   FILTERING STATS - Enhanced Display
-   ============================================ */
-
-.filtering-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-md);
+  gap: var(--space-lg);
   padding: var(--space-md);
-  background: var(--tron-black);
-  border: var(--border-width) solid var(--tron-red);
-  margin-bottom: var(--space-md);
-  box-shadow: 0 0 15px var(--tron-red-glow);
+  background: var(--yt-darker);
+  border-bottom: 1px solid var(--gray-500);
+  font-size: var(--font-size-sm);
+  color: var(--gray-200);
+  flex-wrap: wrap;
 }
 
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-sm);
-  background: var(--tron-darker);
-  border: var(--border-width) solid var(--tron-gray-dark);
-  transition: all var(--transition);
+.forum-stats span {
+  white-space: nowrap;
 }
 
-.stat-item:hover {
-  border-color: var(--tron-red);
-  box-shadow: 0 0 10px var(--tron-red-glow);
-}
-
-.stat-filtered {
-  border-color: var(--tron-red);
-}
-
-.stat-clean {
-  border-color: #00ff00;
-}
-
-.stat-topics {
-  border-color: var(--tron-red-bright);
-}
-
-.stat-label {
-  font-size: var(--text-xs);
-  color: var(--tron-gray);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: var(--space-xs);
-  font-weight: 600;
-}
-
-.stat-value {
-  font-size: var(--text-lg);
-  color: var(--tron-white);
-  font-weight: 900;
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-xs);
-}
-
-.stat-percent {
-  font-size: var(--text-sm);
-  color: var(--tron-red-bright);
-  font-weight: 700;
-}
-
-.stat-filtered .stat-value {
-  color: var(--tron-red-bright);
-}
-
-.stat-clean .stat-value {
-  color: #00ff00;
-}
-
-.stat-topics .stat-value {
-  color: var(--tron-red-bright);
-}
-
-@media (max-width: 768px) {
-  .filtering-stats {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ============================================
-   CATEGORY TABS - Fix Filter
-   ============================================ */
-
-.forum-posts {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--space-sm);
-}
-
-/* ============================================
-   AI TOPICS - FORUM THREADS
-   ============================================ */
-
+/* TOPIC THREADS */
 .topic-thread {
   margin-bottom: var(--space-lg);
-  border: var(--border-glow) solid var(--tron-red);
-  background: var(--tron-darker);
-  box-shadow: 0 0 15px var(--tron-red-glow);
+  border: 1px solid var(--gray-500);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .topic-header {
   padding: var(--space-md);
-  background: var(--tron-black);
-  border-bottom: var(--border-width) solid var(--tron-red);
+  background: var(--yt-darker);
+  border-bottom: 1px solid var(--gray-500);
 }
 
-.topic-title {
-  font-size: var(--text-lg);
-  font-weight: 900;
-  color: var(--tron-red-bright);
-  margin: 0 0 var(--space-xs) 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.topic-description {
-  font-size: var(--text-sm);
-  color: var(--tron-gray);
-  margin: 0 0 var(--space-xs) 0;
-  line-height: 1.5;
-}
-
-.topic-sentiment {
-  display: inline-block;
-  padding: 2px var(--space-xs);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  border: var(--border-width) solid var(--tron-gray-dark);
-  color: var(--tron-gray);
-}
-
-.topic-sentiment.positive {
-  border-color: #00ff00;
-  color: #00ff00;
-}
-
-.topic-sentiment.negative {
-  border-color: var(--tron-red);
-  color: var(--tron-red);
-}
-
-.topic-comments {
-  padding: 0;
-}
-
-.topic-comments .comment-wrapper:last-child {
-  border-bottom: none;
-}
-
-/* ============================================
-   COMMENTS - YouTube Style
-   ============================================ */
-
-.comment-wrapper {
-  padding: var(--space-sm);
-  border-bottom: var(--border-width) solid var(--tron-gray-dark);
-  transition: all var(--transition);
-}
-
-.comment-wrapper:hover {
-  background: var(--tron-dark);
-  border-left: 2px solid var(--tron-red);
-  padding-left: calc(var(--space-sm) - 2px);
-}
-
-.comment-author {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  margin-bottom: var(--space-xs);
-  font-size: var(--text-sm);
-}
-
-.comment-author .avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--tron-red);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-xs);
-  font-weight: 700;
-  color: var(--tron-white);
-}
-
-.comment-author-name {
-  font-weight: 700;
-  color: var(--tron-white);
-}
-
-.comment-text {
-  color: var(--tron-white);
-  line-height: 1.6;
+.topic-header h3 {
+  color: var(--gray-100);
+  font-size: var(--font-size-lg);
   margin-bottom: var(--space-xs);
 }
 
-.comment-actions {
-  display: flex;
-  gap: var(--space-sm);
+.topic-header p {
+  color: var(--gray-200);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-xs);
 }
 
-.comment-actions button {
-  padding: var(--space-xs);
-  font-size: var(--text-xs);
-  background: transparent;
-  border: var(--border-width) solid var(--tron-gray-dark);
-  color: var(--tron-gray);
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.topic-header span {
+  color: var(--gray-300);
+  font-size: var(--font-size-xs);
 }
 
-.comment-actions button:hover {
-  background: var(--tron-dark);
-  border-color: var(--tron-red);
-  color: var(--tron-white);
+/* SCROLLBAR - Dark */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
 }
 
-/* ============================================
-   CATEGORY BADGES - Red/White Only
-   ============================================ */
-
-.category-badge {
-  padding: 2px var(--space-xs);
-  border: var(--border-width) solid var(--tron-red);
-  color: var(--tron-red);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+::-webkit-scrollbar-track {
+  background: var(--yt-darker);
 }
 
-.category-badge.spam,
-.category-badge.toxic,
-.category-badge.bot {
-  background: var(--tron-red);
-  color: var(--tron-white);
+::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 6px;
 }
 
-/* ============================================
-   LOADING & ERRORS
-   ============================================ */
-
-.error-message {
-  background: var(--tron-black);
-  border: var(--border-glow) solid var(--tron-red-bright);
-  color: var(--tron-white);
-  padding: var(--space-sm);
-  margin: var(--space-md);
-  box-shadow: 0 0 20px var(--tron-red-glow);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-300);
 }
 
+/* EMPTY STATE */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  color: var(--tron-gray);
-  gap: var(--space-md);
+  padding: var(--space-xl);
+  color: var(--gray-300);
+  text-align: center;
 }
 
 .empty-state .material-icons {
   font-size: 64px;
-  color: var(--tron-red);
+  margin-bottom: var(--space-md);
+  opacity: 0.3;
 }
 
-/* ============================================
-   BLINDS ANIMATION - Red Tron
-   ============================================ */
-
-.blinds-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: var(--tron-black);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.blinds-container {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.blind {
-  flex: 1;
-  background: var(--tron-red);
-  transform: scaleY(0);
-  transform-origin: top;
-  animation: blindOpen 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  box-shadow: 0 0 30px var(--tron-red-glow);
-}
-
-@keyframes blindOpen {
-  0% { transform: scaleY(0); opacity: 1; }
-  35% { transform: scaleY(1); opacity: 1; }
-  65% { transform: scaleY(1); opacity: 1; }
-  100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
-}
-
-.blinds-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: var(--text-xl);
-  font-weight: 900;
-  color: var(--tron-white);
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  z-index: 10000;
-  text-shadow: 0 0 20px var(--tron-red-glow);
-  animation: titleGlow 0.9s ease-in-out forwards;
-}
-
-@keyframes titleGlow {
-  0%, 25% { opacity: 0; }
-  40%, 60% { opacity: 1; text-shadow: 0 0 30px var(--tron-red-glow); }
-  100% { opacity: 0; }
-}
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-
-@media (max-width: 768px) {
-  .input-section {
-    flex-direction: column;
-  }
-
-  .forum-tabs {
-    overflow-x: auto;
-  }
-}
-
-/* ============================================
-   SIGNIN - Simple Tron
-   ============================================ */
-
-.signin-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: var(--tron-black);
-  gap: var(--space-xl);
-}
-
-.logo-main h1 {
-  font-size: 48px;
-  font-weight: 900;
-  color: var(--tron-red-bright);
-  text-shadow: 0 0 30px var(--tron-red-glow);
-  letter-spacing: 4px;
-}
-
-.signin-box {
-  border: var(--border-glow) solid var(--tron-red);
-  padding: var(--space-xl);
-  background: var(--tron-darker);
-  box-shadow: 0 0 30px var(--tron-red-glow);
-  max-width: 400px;
-  width: 90%;
-}
-
-.google-signin-button {
-  width: 100%;
-  padding: var(--space-sm);
-  background: var(--tron-red);
-  border: var(--border-width) solid var(--tron-red-bright);
-  color: var(--tron-white);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-}
-
-/* ============================================
-   LIBRARY
-   ============================================ */
-
-.library-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-md);
-  padding: var(--space-md);
-}
-
-.library-card {
-  background: var(--tron-darker);
-  border: var(--border-width) solid var(--tron-gray-dark);
-  padding: var(--space-md);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-.library-card:hover {
-  border-color: var(--tron-red);
-  box-shadow: 0 0 15px var(--tron-red-glow);
-}
-
-.library-card-title {
-  font-weight: 700;
-  color: var(--tron-white);
-  margin-bottom: var(--space-xs);
-}
-
-.library-card-meta {
-  font-size: var(--text-xs);
-  color: var(--tron-gray);
+.empty-state h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--gray-200);
 }
